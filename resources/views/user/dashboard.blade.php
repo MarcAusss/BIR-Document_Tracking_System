@@ -99,7 +99,7 @@
 </x-app-layout>
 
 <script>
-    let existingNotificationIds = new Set(); // Track already displayed notifications
+    let existingNotificationIds = new Set();
 
     function fetchNotifications() {
         fetch('{{ route('notifications.unread') }}')
@@ -109,15 +109,13 @@
                 const noNotificationsMessage = document.getElementById('no-notifications-message');
 
                 if (notifications.length === 0) {
-                    // Show "No notifications yet" message
                     noNotificationsMessage.style.display = 'block';
                 } else {
                     noNotificationsMessage.style.display = 'none';
 
-                    // Loop through notifications and add only new ones to the container
                     notifications.forEach(notification => {
                         if (!existingNotificationIds.has(notification.id)) {
-                            existingNotificationIds.add(notification.id); // Mark this notification as displayed
+                            existingNotificationIds.add(notification.id);
 
                             const notificationElement = `
                                 <div class="mt-5 border-y-2 border-black px-3 py-5">
@@ -133,7 +131,14 @@
                                                 <strong>Docket Owner:</strong> ${notification.data.docket_owner}
                                             </p>
                                             <p class="text-sm text-gray-700">
-                                                <strong>Time Sent:</strong> ${notification.data.time_sent}
+                                                <strong>Time Sent:</strong> ${new Date(notification.data.time_sent).toLocaleString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: 'numeric',
+                                                    minute: '2-digit',
+                                                    hour12: true
+                                                })}
                                             </p>
                                         </div>
                                         <form action="/notifications/${notification.id}/mark-as-read" method="POST">
@@ -143,7 +148,7 @@
                                     </div>
                                 </div>
                             `;
-                            container.innerHTML += notificationElement; // Append the new notification
+                            container.innerHTML += notificationElement;
                         }
                     });
                 }
@@ -151,10 +156,8 @@
             .catch(error => console.error('Error fetching notifications:', error));
     }
 
-    // Fetch notifications every 5 seconds
     setInterval(fetchNotifications, 5000);
 
-    // Fetch notifications on page load
     fetchNotifications();
 </script>
 <script>
@@ -165,7 +168,6 @@
             if (dateElement && timeElement) {
                 const now = new Date();
 
-                // Format the date
                 const formattedDate = now.toLocaleDateString('en-US', {
                     weekday: 'long',
                     day: 'numeric',
@@ -173,7 +175,6 @@
                     year: 'numeric',
                 });
 
-                // Format the time
                 const formattedTime = now.toLocaleTimeString('en-US', {
                     hour: 'numeric',
                     minute: 'numeric',
@@ -181,15 +182,12 @@
                     hour12: true,
                 });
 
-                // Update the elements
                 dateElement.textContent = formattedDate;
                 timeElement.textContent = formattedTime;
             }
         }
 
-        // Update the date and time every second
         setInterval(updateDateTime, 1000);
 
-        // Initialize the date and time on page load
         updateDateTime();
     </script>
